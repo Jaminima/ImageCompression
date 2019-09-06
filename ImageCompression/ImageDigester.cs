@@ -23,6 +23,11 @@ namespace ImageCompression
             return ImageData;
         }
 
+        public static BinaryCompressed LoadBinary(string FilePath)
+        {
+
+        }
+
         public static void SaveImage(string FilePath, int[,,] ImageData)
         {
             Bitmap ImageRaw = new Bitmap(ImageData.GetLength(0), ImageData.GetLength(1));
@@ -35,37 +40,22 @@ namespace ImageCompression
             ImageRaw.Save(FilePath);
         }
 
-        public static int[,,] DropResolution(int[,,] OriginalImageData,float WidthMultiplyer=1,float HeightMultiplyer=1)
+        public static void SaveBinary(string FilePath, BinaryCompressed ImageData)
         {
-            int[,,] ImageData = new int[(int)Math.Round(OriginalImageData.GetLength(0)*WidthMultiplyer), (int)Math.Round(OriginalImageData.GetLength(1) * HeightMultiplyer), 3];
-
-            int WidthRatio = (int)Math.Round(1/WidthMultiplyer), HeightRatio = (int)Math.Round(1/HeightMultiplyer), xEquivOffset=0, yEquivOffset=0;
-
-            if (WidthRatio >= 3) { xEquivOffset = -(int)Math.Round((double)(WidthRatio - 0.01f) / 2); }
-            if (HeightRatio >= 3) { yEquivOffset = -(int)Math.Round((double)(HeightRatio - 0.01f) / 2); }
-
-            for (int x = 0, y = 0; x < ImageData.GetLength(0) && y < ImageData.GetLength(1); x++)
+            int Width = ImageData.PixelTreePaths.GetLength(0), Height = ImageData.PixelTreePaths.GetLength(1);
+            BinaryWriter Writer = new BinaryWriter(File.Open(FilePath, FileMode.Create));
+            Writer.Write(Width); Writer.Write(Height);
+            Writer.Write(ImageData.BaseColor[0]); Writer.Write(ImageData.BaseColor[1]); Writer.Write(ImageData.BaseColor[2]);
+            for (int x = 0, y = 0; x < Width && y < Height; x++)
             {
-                int xEquiv = (int)Math.Round(x / WidthMultiplyer)-xEquivOffset, yEquiv = (int)Math.Round(y / HeightMultiplyer)-yEquivOffset,PixelCount =0;
-                int[] AverageColor = new int[3];
-                for (int xn = xEquiv, yn = yEquiv; xn < xEquiv + WidthRatio&& yn < yEquiv + HeightRatio; xn++)
-                {
-                    if (xn >= 0 && yn >= 0 && xn < OriginalImageData.GetLength(0) && yn < OriginalImageData.GetLength(1))
-                    {
-                        AverageColor[0] += OriginalImageData[xn, yn, 0];
-                        AverageColor[1] += OriginalImageData[xn, yn, 1];
-                        AverageColor[2] += OriginalImageData[xn, yn, 2];
-                        PixelCount++;
-                    }
-                    if (xn + 1 == xEquiv + WidthRatio) { xn = xEquiv; yn++; }
-                }
-                ImageData[x, y, 0] = (int)Math.Round((double)AverageColor[0] / PixelCount);
-                ImageData[x, y, 1] = (int)Math.Round((double)AverageColor[1] / PixelCount);
-                ImageData[x, y, 2] = (int)Math.Round((double)AverageColor[2] / PixelCount);
-                if (x + 1 == ImageData.GetLength(0)) { x = -1; y++; }
+                SaveBinary(Writer, ImageData.PixelTreePaths[x, y, 0]);
             }
+        }
 
-            return ImageData;
+        static void SaveBinary(BinaryWriter Writer, List<bool> Path)
+        {
+            Writer.Write(Path.Count);
+            foreach (bool B in Path) { Writer.Write(B); }
         }
     }
 }
