@@ -11,9 +11,13 @@ namespace ImageCompression
         static void Main(string[] args)
         {
             int[,,] ImageData = ImageDigester.LoadImage("./Image.png");
-            BinaryCompressed B = BinaryCompression.Compress(ImageData,10,0);
-            //int[,,] NewImageData = ImageManipulator.DropResolution(ImageData, 0.1f, 0.1f);
-            ImageDigester.SaveImage("./NewImage.bin", B);
+            int[,,] NewImageData = ImageManipulator.DropResolution(ImageData, 0.3f, 0.3f);
+
+
+
+            BinaryCompressed B = BinaryCompression.Compress(NewImageData, 1, 0);
+            ImageDigester.SaveImage("./NewImage.png", BinaryDecompression.ToIntImage(B));
+            ImageDigester.SaveBinary("./NewImage.bin", B);
         }
     }
 }

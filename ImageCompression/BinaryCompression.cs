@@ -12,11 +12,11 @@ namespace ImageCompression
         {
             int xSize = ImageData.GetLength(0), ySize = ImageData.GetLength(1);
             BinaryCompressed Result = new BinaryCompressed();
-            Result.BaseColor = ImageManipulator.GetAverageOfImage(ImageData);
+            Result.BaseColor = new int[] { 127,127,127 }/*ImageManipulator.GetAverageOfImage(ImageData)*/;
             Result.PixelTreePaths = new List<bool>[xSize, ySize, 3];
             for (int x = 0, y = 0; x < xSize && y < ySize; x++)
             {
-                Result.PixelTreePaths[x, y, 0] = GetColorPaths(ImageData[x,y,0], Result.BaseColor[0], MaxPathLength, ApproximationVariance);
+                Result.PixelTreePaths[x, y, 0] = GetColorPaths(ImageData[x, y, 0], Result.BaseColor[0], MaxPathLength, ApproximationVariance);
                 Result.PixelTreePaths[x, y, 1] = GetColorPaths(ImageData[x, y, 1], Result.BaseColor[1], MaxPathLength, ApproximationVariance);
                 Result.PixelTreePaths[x, y, 2] = GetColorPaths(ImageData[x, y, 2], Result.BaseColor[2], MaxPathLength, ApproximationVariance);
                 if (x + 1 == xSize) { x = -1; y++; }
