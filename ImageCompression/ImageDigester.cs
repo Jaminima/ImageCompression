@@ -23,24 +23,30 @@ namespace ImageCompression
             return ImageData;
         }
 
-        //public static BinaryCompressed LoadBinary(string FilePath)
-        //{
-        //    BinaryCompressed ImageData = new BinaryCompressed();
-        //    BinaryReader Reader = new BinaryReader(File.Open(FilePath, FileMode.Open));
-        //    int Width = Reader.ReadInt32(), Height = Reader.ReadInt32();
-        //    ImageData.PixelTreePaths = new List<bool>[Width, Height, 3];
-        //    ImageData.BaseColor = new int[] { Reader.ReadInt32(), Reader.ReadInt32(), Reader.ReadInt32() };
-        //    for (int x = 0, y = 0; x < Width && y < Height; x++)
-        //    {
+        public static BinaryCompressed LoadBinary(string FilePath)
+        {
+            BinaryCompressed ImageData = new BinaryCompressed();
+            BinaryReader Reader = new BinaryReader(File.Open(FilePath, FileMode.Open));
+            int Width = Reader.ReadInt32(), Height = Reader.ReadInt32();
+            ImageData.PixelTreePaths = new List<bool>[Width, Height, 3];
+            ImageData.BaseColor = new int[] { Reader.ReadInt32(), Reader.ReadInt32(), Reader.ReadInt32() };
+            for (int x = 0, y = 0; x < Width && y < Height; x++)
+            {
+                ImageData.PixelTreePaths[x, y, 0] = LoadPath(Reader);
+                ImageData.PixelTreePaths[x, y, 1] = LoadPath(Reader);
+                ImageData.PixelTreePaths[x, y, 2] = LoadPath(Reader);
+                if (x + 1 == Width) { x = -1; y++; }
+            }
+            return ImageData;
+        }
 
-        //        if (x + 1 == Width) { x = -1; y++; }
-        //    }
-        //}
-
-        //static List<bool> LoadPath()
-        //{
-
-        //}
+        static List<bool> LoadPath(BinaryReader Reader)
+        {
+            List<bool> Path = new List<bool> { };
+            int PathCount = Reader.ReadInt32();
+            for (int i = 0; i < PathCount; i++) { Path.Add(Reader.ReadBoolean()); }
+            return Path;
+        }
 
         public static void SaveImage(string FilePath, int[,,] ImageData)
         {

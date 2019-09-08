@@ -15,9 +15,9 @@ namespace ImageCompression
 
 
 
-            BinaryCompressed B = BinaryCompression.Compress(NewImageData, 1, 0);
-            ImageDigester.SaveImage("./NewImage.png", BinaryDecompression.ToIntImage(B));
-            ImageDigester.SaveBinary("./NewImage.bin", B);
+            //BinaryCompressed B = BinaryCompression.Compress(NewImageData, 1, 0);
+            //ImageDigester.SaveImage("./NewImage.png", BinaryDecompression.ToIntImage(B));
+            //ImageDigester.SaveBinary("./NewImage.bin", B);
         }
     }
 }
