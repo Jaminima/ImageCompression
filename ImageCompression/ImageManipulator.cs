@@ -52,5 +52,68 @@ namespace ImageCompression
         {
             return GetAverageOfSet(ImageData, 0, ImageData.GetLength(0), 0, ImageData.GetLength(1));
         }
+
+        public static List<int[]> GetTopColors(int[,,] ImageData, int Colors = 256, int ColorRounding = 0)
+        {
+            Dictionary<int[], int> ColorSet = new Dictionary<int[], int> { };
+            for (int x = 0, y = 0; x < ImageData.GetLength(0) && y < ImageData.GetLength(1); x++)
+            {
+                int[] Pixel = new int[] { ImageData[x, y, 0], ImageData[x, y, 1], ImageData[x, y, 2] };
+                List<int[]> ColorSetKeys = ColorSet.Keys.ToList();
+                bool HasAdded = false;
+                for (int i = 0; i < ColorSet.Count; i++)
+                {
+                    int[] iPixel = ColorSetKeys[i];
+                    int Differntial = Math.Abs(Pixel[0] - iPixel[0]) + Math.Abs(Pixel[1] - iPixel[1]) + Math.Abs(Pixel[2] - iPixel[2]);
+                    if (Differntial <= ColorRounding)
+                    {
+                        ColorSet[iPixel]++; HasAdded = true;
+                        break;
+                    }
+                }
+                if (ColorSet.Count == 0||!HasAdded) { ColorSet.Add(Pixel, 1); }
+                if (x + 1 == ImageData.GetLength(0)) { x = -1; y++; }
+            }
+            List<int> ColorValues = ColorSet.Values.ToList();
+            List<int[]> FinalColorSet = new List<int[]> { };
+            ColorValues.Sort();
+            for (int i = ColorValues[0]; i > 0; i--)
+            {
+                foreach (KeyValuePair<int[],int> Color in ColorSet.Where(x => x.Value == i))
+                {
+                    if (FinalColorSet.Count < Colors) { FinalColorSet.Add(Color.Key); }
+                    else { return FinalColorSet; }
+                }
+            }
+            return FinalColorSet;
+        }
+
+        public static int[,,] UseOnlyColors(int[,,] ImageData, List<int[]> Colors)
+        {
+            for (int x=0, y = 0; x < ImageData.GetLength(0) && y < ImageData.GetLength(1);x++)
+            {
+                int[] ClosestColor = null, Pixel = new int[] { ImageData[x, y, 0], ImageData[x, y, 1], ImageData[x, y, 2] };
+                int ClosestDifferential = 0;
+                foreach (int[] Color in Colors)
+                {
+                    int Differntial = Math.Abs(Color[0] - Pixel[0]) + Math.Abs(Color[1] - Pixel[1]) + Math.Abs(Color[2] - Pixel[2]);
+                    if (ClosestColor == null || ClosestDifferential > Differntial)
+                    {
+                        ClosestColor = Color; ClosestDifferential = Differntial;
+                        if (Differntial == 0) { break; }
+                    }
+                }
+                ImageData[x, y, 0] = ClosestColor[0];
+                ImageData[x, y, 1] = ClosestColor[1];
+                ImageData[x, y, 2] = ClosestColor[2];
+                if (x + 1 == ImageData.GetLength(0)) { x = -1; y++; }
+            }
+            return ImageData;
+        }
+
+        static bool PixelIsSame(int[] Pixel1, int[] Pixel2)
+        {
+            return Pixel1[0] == Pixel2[0] && Pixel1[1] == Pixel2[1] && Pixel1[2] == Pixel2[2];
+        }
     }
 }
